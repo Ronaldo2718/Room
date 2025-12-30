@@ -1,28 +1,41 @@
-import { supabase } from './supabase'
+import { createClient } from '@supabase/supabase-js'
 
-export async function loadFromSupabase() {
-  const tables = [
-    'properties',
-    'rooms',
-    'tenants',
-    'transactions',
-    'suppliers'
-  ]
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-  const result: any = {}
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-  for (const table of tables) {
-    const { data, error } = await supabase
-      .from(table)
-      .select('*')
+async function loadTable<T>(table: string): Promise<T[]> {
+  const { data, error } = await supabase.from(table).select('*')
 
-    if (error) {
-      console.error(⁠ Erro ao carregar ${table} ⁠, error)
-      throw error
-    }
-
-    result[table] = data
+  if (error) {
+    console.error(`Erro ao carregar ${table}`, error)
+    throw error
   }
 
-  return result
+  return data as T[]
+}
+
+export async function loadFromSupabase() {
+  const [
+    properties,
+    rooms,
+    tenants,
+    transactions,
+    suppliers
+  ] = await Promise.all([
+    loadTable('properties'),
+    loadTable('rooms'),
+    loadTable('tenants'),
+    loadTable('transactions'),
+    loadTable('suppliers')
+  ])
+
+  return {
+    properties,
+    rooms,
+    tenants,
+    transactions,
+    suppliers
+  }
 }
