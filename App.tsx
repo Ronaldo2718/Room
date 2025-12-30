@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import { Property, Room, Tenant, Transaction, TabType, Supplier } from './types';
-import { loadFromSupabase } from './syncFromSupabase';
+import { loadFromSupabase } from './services/syncFromSupabase';
 
 // --- CONSTANTS ---
 const STORAGE_KEY = 'rentmaster_pro_db_v8'; // Version bumped to regenerate data
