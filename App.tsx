@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import { Property, Room, Tenant, Transaction, TabType, Supplier } from './types';
+import { loadFromSupabase } from './syncFromSupabase';
 
 // --- CONSTANTS ---
 const STORAGE_KEY = 'rentmaster_pro_db_v8'; // Version bumped to regenerate data
@@ -307,6 +308,33 @@ const TransactionCard: React.FC<{
 };
 
 export default function App() {
+    async function syncFromCloud() {
+    const data = await loadFromSupabase()
+
+    localStorage.setItem(
+      'rentmaster_pro_db_v8_properties',
+      JSON.stringify(data.properties)
+    )
+    localStorage.setItem(
+      'rentmaster_pro_db_v8_rooms',
+      JSON.stringify(data.rooms)
+    )
+    localStorage.setItem(
+      'rentmaster_pro_db_v8_tenants',
+      JSON.stringify(data.tenants)
+    )
+    localStorage.setItem(
+      'rentmaster_pro_db_v8_transactions',
+      JSON.stringify(data.transactions)
+    )
+    localStorage.setItem(
+      'rentmaster_pro_db_v8_suppliers',
+      JSON.stringify(data.suppliers)
+    )
+
+    window.location.reload()
+  }
+
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [periodMode, setPeriodMode] = useState<'all' | 'current' | 'last'>('current');
   const [globalPropId, setGlobalPropId] = useState<string>('all');
@@ -1117,6 +1145,15 @@ export default function App() {
         <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xs">RP</div>
       </header>
       
+      <div className="px-6 py-2">
+  <button
+    onClick={syncFromCloud}
+    className="w-full bg-indigo-100 text-indigo-700 font-bold text-xs py-3 rounded-xl"
+  >
+    🔄 Carregar dados da nuvem
+  </button>
+</div>
+
       <main className="px-6 pt-6">
         {activeTab === 'home' && renderHome()}
         {activeTab === 'imoveis' && renderImoveis()}
